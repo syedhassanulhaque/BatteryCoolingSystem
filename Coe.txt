@@ -1,0 +1,113 @@
+/* Automated Cooling System Device that ables to 
+control a cooling Fan. This device should have 3 LED lights 
+to signify Temperature Levels
+Red- Hot/High temperature,
+Green- Room temperature/ Medium Temparature
+Yello- Cold/ lower than room Temperature.
+and a Buzzer that emits emergency Sound Signal if 
+room teprature is below 27C or above 37C. 
+*/
+//---------------------------------------------------------------------------------------------------------------------------
+// Declare all the pins 
+int temp = A0;
+int greenLed = 6;
+int redLed = 4;
+int yelLed = 5;
+int fan = 3;
+int buzzer = 7;
+
+int thresholdValue = 0;
+int celsius = 0;
+int fahrenheit = 0;
+
+
+void greenLightOn(){
+	digitalWrite(greenLed, HIGH);
+}
+void greenLightOff(){
+	digitalWrite(greenLed, LOW);
+}
+void yelLightOn(){
+	digitalWrite(yelLed, HIGH);
+}
+void yelLightOff(){
+	digitalWrite(yelLed, LOW);
+}
+void redLightOn(){
+	digitalWrite(redLed, HIGH);
+}
+void redLightOff(){
+	digitalWrite(redLed, LOW);
+}
+void fanOn(){
+	analogWrite (fan, 255);
+}
+void fanOff(){
+	analogWrite (fan, 0);
+}
+void buzzerOn(){
+	noTone(buzzer);
+	tone(buzzer,494,500);
+	delay(300);
+  	noTone(buzzer);
+	tone(buzzer,523,300);
+	delay(200);
+}
+void buzzerOff(){
+	digitalWrite(buzzer, LOW);
+}
+
+void setup()
+{
+  pinMode(redLed, OUTPUT);
+  pinMode(greenLed, OUTPUT);
+  pinMode(yelLed, OUTPUT);
+  pinMode(fan, OUTPUT);
+  pinMode(buzzer, OUTPUT);
+  pinMode(temp, INPUT);
+  Serial.begin(9600);
+}
+
+void loop(){
+  
+  // Temperature calculation
+  celsius = map(((analogRead(A0) - 20) * 3.04), 0, 1023, -40, 125);
+  fahrenheit = ((celsius * 9) / 5 + 32);
+  
+  Serial.print(celsius);
+  Serial.print(" Celsius || ");
+  Serial.print(fahrenheit);
+  Serial.println(" Fahrenheit");
+  
+  // room temp = 20 to 25°C
+  //Green On Room Temp
+  if(celsius >= 20 && celsius <= 25){
+    greenLightOn();
+    redLightOff();
+    yelLightOff();
+    fanOff();
+    buzzerOff();
+    //Serial.println("green light on");
+  }
+  //Red and Fan On Temp is High
+  else if(celsius >= 31 && celsius > 40){
+    greenLightOff();
+    fanOn();
+    buzzerOff();
+    redLightOn();
+    yelLightOff();
+    //Serial.println("red light and fan on");
+  }
+  //Yellow On Temp is Below Normal
+  else if(celsius <= 19){
+    yelLightOn();
+    greenLightOff();
+    redLightOff();
+    fanOff();
+    buzzerOn();
+    //Serial.println("yelow light on");
+  }
+  else{
+  	Serial.println("Temperature is Normal");
+  }
+}
